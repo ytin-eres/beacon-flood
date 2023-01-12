@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <tins/tins.h>
 #include <list>
 #include <unistd.h>
 
@@ -8,14 +7,11 @@
 #include "beaconframe.h"
 
 using namespace std;
-using namespace Tins;
 
 void beacon_flood(char* if_name, char* ssid_list) {
 	list<BeaconFrame> bfl;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	
-	PacketSender sender(if_name);
-	ifstream fp(ssid_list);
+		ifstream fp(ssid_list);
 	if (fp.fail()) {
 		cerr << "Cannot open ssid list" << endl;
 		exit(-1);
@@ -37,7 +33,7 @@ void beacon_flood(char* if_name, char* ssid_list) {
 
 		bh->ver_ = 0;
 		bh->type_ = 0;
-		bh->subtype_ = Dot11::BEACON;		
+		bh->subtype_ = Dot11Hdr::Beacon;		
 		bh->flags_ = 0;
 		bh->duration_ = 0;
 
