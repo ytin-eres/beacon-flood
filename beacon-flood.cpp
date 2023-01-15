@@ -8,6 +8,8 @@
 
 using namespace std;
 
+uint8_t channel_{36};
+
 void beacon_flood(char* if_name, char* ssid_list) {
 	list<BeaconFrame> bfl;
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -24,7 +26,7 @@ void beacon_flood(char* if_name, char* ssid_list) {
 	while(getline(fp,line)){
 		mac = Mac::randomMac();
 
-		beaconframe.radioHdr_.len_ = 0;
+		beaconframe.radioHdr_.len_ = 8;
 		beaconframe.radioHdr_.pad_ = 0;
 		beaconframe.radioHdr_.present_ = 0;
 		beaconframe.radioHdr_.ver_ = 0;
@@ -58,9 +60,27 @@ void beacon_flood(char* if_name, char* ssid_list) {
 			cerr << "[*] Given SSID is too long" << endl;
 			exit(-1);
 		}
-		
 		memcpy(tag->value(),ssid.c_str(), ssid.length());
 		tag = tag->next();
+		
+		tag->num_ = BeaconHdr::TagSupportedRated;
+		tag->len_ = 8;
+		char* p = pchar(tag->value());
+		*p++ = 0x82; // 1(B)
+		*p++ = 0x84; // 2(B)
+		*p++ = 0x8B; // 5.5(B)
+		*p++ = 0x96; // 11(B)
+		*p++ = 0x24; // 18
+		*p++ = 0x30; // 24
+		*p++ = 0x48; // 36
+		*p++ = 0x6C; // 54
+		tag = tag->next();
+
+		tag->num_ = BeaconHdr::TagDsParameterSet;
+		tag->len_ = 1;
+		*pchar(tag->value()) = channel_;
+		tag = tag->next();
+
 		beaconframe.size_ = (char*)tag - (char*)&beaconframe;
 
 		bfl.push_back(beaconframe);
