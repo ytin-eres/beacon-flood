@@ -65,7 +65,7 @@ void beacon_flood(char* if_name, char* ssid_list) {
 		
 		tag->num_ = BeaconHdr::TagSupportedRated;
 		tag->len_ = 8;
-		char* p = pchar(tag->value());
+		char* p = (char*)tag->value();
 		*p++ = 0x82; // 1(B)
 		*p++ = 0x84; // 2(B)
 		*p++ = 0x8B; // 5.5(B)
@@ -78,7 +78,7 @@ void beacon_flood(char* if_name, char* ssid_list) {
 
 		tag->num_ = BeaconHdr::TagDsParameterSet;
 		tag->len_ = 1;
-		*pchar(tag->value()) = channel_;
+		*(uint8_t)(tag->value()) = channel_;
 		tag = tag->next();
 
 		beaconframe.size_ = (char*)tag - (char*)&beaconframe;
